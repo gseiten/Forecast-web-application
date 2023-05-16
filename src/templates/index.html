@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css"
+        integrity="sha512-HqxHUkJM0SYcbvxUw5P60SzdOTy/QVwA1JJrvaXJv4q7lmbDZCmZaqz01UPOaQveoxfYRv1tHozWGPMcuTBuvQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>File Downloader</title>
+</head>
+
+<body>
+
+    <div class="section">
+        <div class="card">
+            <div class="card-content">
+                <div class="content">
+                    <h2 class="title is-size-2 is-underlined pb-5">
+                        <center>Generate Demand Forecast</center>
+                    </h2>
+    
+                    <form method="get">
+                        <progress class="progress is-small is-warning" max="100" id="myprettypbar">15%</progress>
+                        <center>
+                            <button class="button is-primary" type="submit" onclick="downloadFile(); this.disabled=true;">Generate Forecasts
+                            </button>
+                        </center>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+
+</body>
+
+
+<script>
+
+    function downloadFile() {
+
+        /* Steps to follow
+create a loading object
+1. call api using http client
+2. set display to block on progress bar
+3. wait for results
+4. set display to none on progress bar
+*/
+
+        //set display to block on progress bar
+        document.getElementById("myprettypbar").style.display = "block";
+
+        //call api using httpe client
+        url = '/download_xlsx'
+        fetch(url)
+            .then(response => {
+
+                const contentDisposition = response.headers.get('content-disposition');
+                const fileName = contentDisposition ? contentDisposition.split('filename=')[1].replace(/"/g, '') : 'download.xlsx'
+
+                //set display to block on progress bar
+                document.getElementById("myprettypbar").style.display = "none";
+
+                response.blob().then(blob => {
+                    const blobUrl = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = blobUrl;
+                    link.setAttribute('download', fileName );
+                    document.body.appendChild(link);
+                    link.click();
+                    link.parentNode.removeChild(link);
+                })
+
+            })
+            .catch((err) => console.log("err", err))
+
+
+
+        //create a download button object
+        const downloadButton = document.querySelector('button');
+
+    }
+
+
+
+</script>
+
+
+<style>
+    #myprettypbar {
+        display: none;
+    }
+</style>
+
+</html>
