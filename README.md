@@ -1,4 +1,4 @@
-Inside the main directory set the FILES_FOLDER path to the path where your R-script generated forecast-o/p excel file is saved  
+Inside the main.py set the FILES_FOLDER path to the path where your R-script generated forecast-o/p excel file is saved  
 
 1. Create a virtual-environment
 2. Activate the created virtual environment and the
