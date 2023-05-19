@@ -5,4 +5,4 @@ Inside the main.py set the FILES_FOLDER path to the path where your R-script gen
    pip install -r requirements.txt
 3. move inside the src directory: cd src
 4. following this run: uvicorn main:app --reload
-5. Open the localhost and excuet the same
+5. Open the localhost and excute the same
