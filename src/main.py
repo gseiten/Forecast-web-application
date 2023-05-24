@@ -7,6 +7,8 @@ import io
 import sys
 import openpyxl
 from datetime import datetime
+import pandas as pd
+import re
 
 sys.path.append(os.path.abspath('C:/Users/Harleen kaur Bagga/AppData/Local/Programs/Python/Python310'))
 
@@ -70,12 +72,24 @@ def download_xlsx():
     latest_file = get_latest_file(files)
     print(latest_file)
     # Read the example CSV file
-    with open(os.path.join(FILES_FOLDER, latest_file), "rb") as file_obj:
-        file_content = file_obj.read()
-
-    # Convert the file content to CSV
-    xlsx_content = convert_to_xlsx(file_content)
+    #with open(os.path.join(FILES_FOLDER, latest_file), "r") as file_obj:
+    #    file_content = file_obj.read()
+    print(os.path.join(FILES_FOLDER, latest_file))
+    file_content = pd.read_excel(os.path.join(FILES_FOLDER, latest_file))
+    print(file_content)
+    season_yr = "FE-2023"
+    file_content=season_mapping(file_content, season_yr)
     
+    print(file_content)
+    
+    towrite = io.BytesIO()
+    file_content.to_excel(towrite)  # write to BytesIO buffer
+    towrite.seek(0)
+    
+    # Convert the file content to CSV
+    xlsx_content = convert_to_xlsx(file_content.getvalue())
+    
+     
     # Create a streaming response to download the CSV
     def stream_response():
         yield xlsx_content
@@ -84,6 +98,7 @@ def download_xlsx():
                                    {"Content-Disposition": f'attachment; filename="{latest_file}"' })
     
 def convert_to_xlsx(file_content: bytes) -> bytes:
+    
     # Load the byte stream as an Excel workbook using openpyxl
     workbook = openpyxl.load_workbook(io.BytesIO(file_content))
     
@@ -125,7 +140,40 @@ def get_latest_file(files):
         break
     return ls_sorted[-1]            
             
-        
+def season_mapping(df, season_yr):
+    
+    print("inside season mapping")
+    print(df)
+    
+    colnames= list(df.columns)
+    season_month_mapping={
+        'SP':pd.date_range(start='02/01/2018', periods=3, freq='1M').strftime("%b"),
+        'SU':pd.date_range(start='05/01/2018', periods=3, freq='1M').strftime("%b"),
+        'FE':pd.date_range(start='07/01/2018', periods=4, freq='1M').strftime("%b"),
+        'WI':pd.date_range(start='11/01/2018', periods=4, freq='1M').strftime("%b")
+        }
+
+
+    #season_yr = 'SP-2024'
+    season_yr_ls= season_yr.split("-")
+    season, yr= season_yr_ls[0], season_yr_ls[1]
+    season_mon= season_month_mapping[season]
+
+    ls_mon=[]   
+    for mon in season_mon:
+            month_yr = mon+"-"+yr
+            r = re.compile(month_yr)
+            mon_ls =  list(filter(r.match, colnames))
+            if len(mon_ls)!=0:
+                ls_mon.append(mon_ls[0])
+
+    if len(ls_mon)==len(season_mon):
+        filtered_dataframe = df.filter(items=['store', 'site_code', 'tier', 'region', 'zone', 'division', 'section', 'season', 'dept_name', 'dept_code']+ls_mon)
+    else:
+        print("forecast not generated for the given period")
+    return filtered_dataframe
+    
+            
 
 
 
