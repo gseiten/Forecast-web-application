@@ -5,29 +5,92 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css"
         integrity="sha512-HqxHUkJM0SYcbvxUw5P60SzdOTy/QVwA1JJrvaXJv4q7lmbDZCmZaqz01UPOaQveoxfYRv1tHozWGPMcuTBuvQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <title>File Downloader</title>
+    <title>Demand Forecast</title>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap4.min.js"></script>
+
 </head>
 
 <body>
 
     <div class="section">
+
         <div class="card">
             <div class="card-content">
-                <div class="content">
+                <div class="content has-text-centered">
                     <h2 class="title is-size-2 is-underlined pb-5">
-                        <center>Generate Demand Forecast</center>
+                        <span>Generate Demand Forecast</span>
                     </h2>
-    
-                    <form method="get">
-                        <progress class="progress is-small is-warning" max="100" id="myprettypbar">15%</progress>
-                        <center>
-                            <button class="button is-primary" type="submit" onclick="downloadFile(); this.disabled=true;">Generate Forecasts
-                            </button>
-                        </center>
-                    </form>
+                    <div class="subtitle">Predicts for next 12 months only**</div>
+
+                    <div class="select mb-5">
+                        <select id="selected_season">
+                            <option>Select Season</option>
+                            {% for i in season %}
+                            <option>{{ i }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <progress class="progress is-small is-warning" max="100" id="myprettypbar">15%</progress>
+
+                    <button class="button is-primary" type="submit" onclick="downloadFile(); this.disabled=true;">
+                        Generate Forecasts
+                    </button>
+
+                    <!-- <form action="/fetch_data" method="POST"> -->
+                    <button type="submit" class="button is-primary" onclick="fetchdata();">
+                        Fetch Records
+                    </button>
+                    <!-- <a href="{{ url_for('fetch_data') }}" class="button is-primary" type="submit">
+                        </a> -->
+                    <!-- </form> -->
+
                 </div>
             </div>
+
+            <!-- fetch_data -->
+
+            {% if season_data %}
+
+            <div class="container">
+                <table id="example" class="table table-striped table-bordered" style="width:100%">
+                    <thead>
+                        <tr>
+                            {% for header in season_data["headers"] %}
+                            <th>{{ header }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in season_data["rows"] %}
+
+                        <tr>
+                            {% for v in row.values() %}
+                            <td>{{v}}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+
+            {% endif %}
+
+
         </div>
+
+
+
+
+
+
+
     </div>
 
     </div>
@@ -35,50 +98,87 @@
 
 </body>
 
-
 <script>
+
+
+    function fetchdata() {
+
+        const season_data = []
+
+        fetch("/fetch_data", { Method: "POST" })
+            .then(response => {
+                //handle response            
+                console.log(response.json());
+            })
+            .then(data => {
+                //handle data
+                console.log(data)
+            })
+            .catch(error => {
+                //handle error
+            });
+
+
+        $('#example').DataTable({
+            serverSide: true,
+            ajax: {
+                url: '/fetch_data',
+                type: 'POST'
+            }
+        });
+    }
+
+    /*
+    $(document).ready(function () {
+        $('#example').DataTable({
+            pagingType: 'full_numbers',
+            deferRender: true,
+        });
+    });
+    */
+
 
     function downloadFile() {
 
-        /* Steps to follow
-create a loading object
-1. call api using http client
-2. set display to block on progress bar
-3. wait for results
-4. set display to none on progress bar
-*/
+        const selected_season = document.getElementById("selected_season").value;
 
-        //set display to block on progress bar
-        document.getElementById("myprettypbar").style.display = "block";
+        if (selected_season) {
+            //set display to block on progress bar
+            document.getElementById("myprettypbar").style.display = "block";
 
-        //call api using httpe client
-        url = '/download_xlsx'
-        fetch(url)
-            .then(response => {
+            //call api using httpe client
+            url = '/download_xlsx'
+            fetch(url + "?" + new URLSearchParams({
+                "season": selected_season
+            }))
+                .then(response => {
 
-                const contentDisposition = response.headers.get('content-disposition');
-                const fileName = contentDisposition ? contentDisposition.split('filename=')[1].replace(/"/g, '') : 'download.xlsx'
+                    const contentDisposition = response.headers.get('content-disposition');
+                    const fileName = contentDisposition ? contentDisposition.split('filename=')[1].replace(/"/g, '') : 'download.xlsx'
 
-                //set display to block on progress bar
-                document.getElementById("myprettypbar").style.display = "none";
+                    //set display to block on progress bar
+                    document.getElementById("myprettypbar").style.display = "none";
 
-                response.blob().then(blob => {
-                    const blobUrl = window.URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = blobUrl;
-                    link.setAttribute('download', fileName );
-                    document.body.appendChild(link);
-                    link.click();
-                    link.parentNode.removeChild(link);
+                    response.blob().then(blob => {
+                        const blobUrl = window.URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = blobUrl;
+                        link.setAttribute('download', fileName);
+                        document.body.appendChild(link);
+                        link.click();
+                        link.parentNode.removeChild(link);
+                    })
+
                 })
+                .catch((err) => console.log("err", err))
 
-            })
-            .catch((err) => console.log("err", err))
+            //create a download button object
+            const downloadButton = document.querySelector('button');
 
+        } else {
+            pass
+        }
 
-
-        //create a download button object
-        const downloadButton = document.querySelector('button');
 
     }
 
