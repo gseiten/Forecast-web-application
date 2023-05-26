@@ -1,5 +1,5 @@
 import csv
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Form
 from fastapi.responses import (
     StreamingResponse,
     HTMLResponse,
@@ -15,6 +15,7 @@ import sys
 from datetime import datetime
 import pandas as pd
 import re
+import json
 
 from helpers import (
     seasons_available,
@@ -76,6 +77,16 @@ async def download_xlsx(request: Request, season: str):
 
 @app.post("/fetch_data")
 async def fetch_data(request: Request):
+
+    seasons = seasons_available()
+
+    form_data = await request.form()
+    selected_season = form_data["selected_season"]
+    print(selected_season)
+
+    # print(selected_season)
+
+    # return json.dumps(selected_season)
 
     season_data = {
         "headers": [
@@ -262,11 +273,12 @@ async def fetch_data(request: Request):
         ],
     }
 
-    return Response(content=season_data, media_type="application/json")
+    # return json.dumps(season_data)
+    # return Response(content=season_data, media_type="application/json")
 
-    return templates.TemplateResponse(
-        "index.html", {"request": request, "season_data": season_data}
-    )
+    # return templates.TemplateResponse(
+    #     "forecast_preview.html", {"request": request, "season_data": season_data}
+    # )
 
     # getting the latest file
     files = get_files_in_directory(FILES_FOLDER)
@@ -276,15 +288,23 @@ async def fetch_data(request: Request):
     file_df = pd.read_excel(os.path.join(FILES_FOLDER, latest_file))
 
     # data with filtered out season
-    season_df = season_mapping(file_df, "SU-2023")
+    season_df = season_mapping(file_df, selected_season)
+    data_list = season_df.to_dict(orient="records")
+    data_list = data_list[0:5000]
 
     season_data = {
         "headers": list(season_df.columns),
-        "rows": season_df.to_dict(orient="records"),
+        "rows": data_list,
     }
 
     return templates.TemplateResponse(
-        "index.html", {"request": request, "season_data": season_data}
+        "forecast_preview.html",
+        {
+            "request": request,
+            "season_data": season_data,
+            "selected_season": selected_season,
+            "seasons": seasons,
+        },
     )
 
 
