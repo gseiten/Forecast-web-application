@@ -7,9 +7,7 @@
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <title>Demand Forecast</title>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css">
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
@@ -25,39 +23,35 @@
         <div class="card">
             <div class="card-content">
 
-                <div class=" content has-text-centered">
+
+                <div class="buttons">
+                    <a class="button is-primary is-light"  href="{{ url_for('home') }}" >
+                        <span class="icon">
+                            <i class="fa fa-home"></i>
+                        </span>
+                        <span>Go Home</span>
+                    </a>
+                </div>
+
+
+                <div class="content has-text-centered">
                     <h2 class="title is-size-2 is-underlined pb-5">
-                        <span>Demand Forecast</span>
+                        <span>Generate Demand Forecast</span>
                     </h2>
-                    <div class="subtitle is-size-6">Predicts for next 12 months only**</div>
+                    <div class="subtitle">Predicts for next 12 months only**</div>
 
-                    <br>
-
-                    <!-- <div class="select mb-5">
-                        <select id="selected_season" onchange="checkSelectedValue(this)">
-                            <option value="0">Select Season</option>
-                            {% for i in season %}
-                            <option>{{ i }}</option>
+                    <div class="select mb-5">
+                        <select id="selected_season">
+                            <option selected="selected">
+                                {{ selected_season }}
+                            </option>
+                            {% for i in seasons %}
+                            {% if i != selected_season %}
+                                <option>{{ i }}</option>
+                            {% endif %}
                             {% endfor %}
                         </select>
-                    </div> -->
-
-                    <form action="/fetch_data" method="POST">
-                        <div class="select mb-5">
-                            <select id="selected_season" onchange="checkSelectedValue(this)" name="selected_season">
-                                <option value="0">Select Season</option>
-                                {% for i in season %}
-                                <option>{{ i }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <button id="fetch-button" type="submit" class="button is-primary" name="fetch-button"
-                            onclick="this.form.submit();this.disabled = true;">
-                            Preview Forecast
-                        </button>
-                        <!-- <a href="{{ url_for('fetch_data') }}" class="button is-primary" type="submit">
-                        </a> -->
-                    </form>
+                    </div>
 
                     <progress class="progress is-small is-warning" max="100" id="myprettypbar">15%</progress>
 
@@ -66,10 +60,35 @@
                         Export Forecast as .xlsx
                     </button>
 
-
-
                 </div>
             </div>
+
+            <!-- fetch_data -->
+
+            <div id="table-container" class="container">
+                <table id="example" class="table table-striped table-bordered" style="width:100%">
+                    <thead>
+                        <tr>
+                            {% for header in season_data["headers"] %}
+                            <th>{{ header }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in season_data["rows"] %}
+
+                        <tr>
+                            {% for v in row.values() %}
+                            <td>{{v}}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+
+
 
 
         </div>
@@ -89,16 +108,11 @@
 
 <script>
 
-    // handle action buttons on selected value
-    document.getElementById("download-button").disabled = true;
-    document.getElementById("fetch-button").disabled = true;
-    function checkSelectedValue(selectedValue) {
-        if (selectedValue.value != "0") {
-            document.getElementById("download-button").disabled = false;
-            document.getElementById("fetch-button").disabled = false;
-        }
-    }
-
+    $(document).ready(function () {
+        $('#example').DataTable({
+            pagingType: 'full_numbers',
+        });
+    });
 
     function downloadFile() {
 

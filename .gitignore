@@ -1,2 +1,4 @@
 /my_venv
 src/__pycache__/*
+/__pycache__/*
+/main.py
