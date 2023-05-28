@@ -25,22 +25,38 @@
         <div class="card">
             <div class="card-content">
 
-                <div class=" content has-text-centered">
-                    <h2 class="title is-size-2 is-underlined pb-5">
-                        <span>Demand Forecast</span>
-                    </h2>
-                    <div class="subtitle is-size-6">Predicts for next 12 months only**</div>
+                <div class="content has-text-centered">
+
+
+                    <nav class="level">
+                        <div class="level-item ">
+                            <div>
+                                <h2 class="title is-size-1 pb-5">
+                                    <span>Demand Forecast Tool</span>
+                                    <a target="_blank" title="Go to process documentation"
+                                        href="https://docs.google.com/document/d/1JvfREiJwzHN4g4JNArqF3FlbH405dDnRxy4SzVONSGg/edit#heading=h.haq7816uqp7y">
+                                        <i class="is-size-5 fa-solid fa-link fa-xs"></i>
+                                    </a>
+                                </h2>
+                                <div class="subtitle is-size-6">Predicts for next <b>24 Months</b></div>
+                                <div> Sales data available till <b>{{ last_month }}</b></div>
+                            </div>
+                        </div>
+
+                        <!-- <div class="level-right">
+                            <div class="level-item" title="Go to process documentation">
+                                <a target="_blank"
+                                    href="https://docs.google.com/document/d/1JvfREiJwzHN4g4JNArqF3FlbH405dDnRxy4SzVONSGg/edit#heading=h.haq7816uqp7y">
+                                    <i class="fa-solid fa-link fa-xl"></i>
+                                </a>
+                            </div>
+                        </div> -->
+                    </nav>
+
 
                     <br>
 
-                    <!-- <div class="select mb-5">
-                        <select id="selected_season" onchange="checkSelectedValue(this)">
-                            <option value="0">Select Season</option>
-                            {% for i in season %}
-                            <option>{{ i }}</option>
-                            {% endfor %}
-                        </select>
-                    </div> -->
+                    <progress class="progress is-small is-warning" max="100" id="myprettypbar">15%</progress>
 
                     <form action="/fetch_data" method="POST">
                         <div class="select mb-5">
@@ -51,18 +67,17 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <button id="fetch-button" type="submit" class="button is-primary" name="fetch-button"
-                            onclick="this.form.submit();this.disabled = true;">
+                        <button id="fetch-button" type="submit" class="button is-warning" name="fetch-button"
+                            onclick="this.form.submit();this.disabled = true; document.getElementById('download-button').disabled = true;document.getElementById('myprettypbar').style.display = 'block';">
                             Preview Forecast
                         </button>
-                        <!-- <a href="{{ url_for('fetch_data') }}" class="button is-primary" type="submit">
+
+                        <!-- <a href="{{ url_for('fetch_data') }}" class="button is-warning" type="submit">
                         </a> -->
                     </form>
 
-                    <progress class="progress is-small is-warning" max="100" id="myprettypbar">15%</progress>
-
-                    <button id="download-button" class="button is-primary" type="submit"
-                        onclick="downloadFile(); this.disabled=true;">
+                    <button id="download-button" class="button is-warning" type="submit"
+                        onclick="downloadFile(); this.disabled=true; document.getElementById('fetch-button').disabled = true;">
                         Export Forecast as .xlsx
                     </button>
 
@@ -100,6 +115,7 @@
     }
 
 
+
     function downloadFile() {
 
         const selected_season = document.getElementById("selected_season").value;
@@ -108,7 +124,7 @@
             //set display to block on progress bar
             document.getElementById("myprettypbar").style.display = "block";
 
-            //call api using httpe client
+            //call api using http client
             url = '/download_xlsx'
             fetch(url + "?" + new URLSearchParams({
                 "season": selected_season

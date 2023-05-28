@@ -25,7 +25,7 @@
 
 
                 <div class="buttons">
-                    <a class="button is-primary is-light"  href="{{ url_for('home') }}" >
+                    <a class="button is-warning"  href="{{ url_for('home') }}" >
                         <span class="icon">
                             <i class="fa fa-home"></i>
                         </span>
@@ -35,10 +35,14 @@
 
 
                 <div class="content has-text-centered">
-                    <h2 class="title is-size-2 is-underlined pb-5">
-                        <span>Generate Demand Forecast</span>
+                    <h2 class="title is-size-1 pb-5">
+                        <span>Demand Forecast Tool</span>
                     </h2>
-                    <div class="subtitle">Predicts for next 12 months only**</div>
+                    <div class="subtitle">Predicts for next <b>24 Months</b></div>
+
+                    <br>
+
+                    <progress class="progress is-small is-warning" max="100" id="myprettypbar">15%</progress>
 
                     <div class="select mb-5">
                         <select id="selected_season">
@@ -53,9 +57,7 @@
                         </select>
                     </div>
 
-                    <progress class="progress is-small is-warning" max="100" id="myprettypbar">15%</progress>
-
-                    <button id="download-button" class="button is-primary" type="submit"
+                    <button id="download-button" class="button is-warning" type="submit"
                         onclick="downloadFile(); this.disabled=true;">
                         Export Forecast as .xlsx
                     </button>
@@ -87,21 +89,9 @@
                     </tbody>
                 </table>
             </div>
-
-
-
-
-        </div>
-
-
-
-
-
-
-
     </div>
-
-    </div>
+ </div>
+</div>
 
 
 </body>

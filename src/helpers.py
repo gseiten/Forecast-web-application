@@ -4,7 +4,7 @@ This file container all the helper functions.
 
 import pandas as pd
 import re
-from datetime import datetime
+from datetime import datetime, date, timedelta
 import os
 
 
@@ -31,7 +31,7 @@ def seasons_available():
         "SP": pd.date_range(start="02/01/2018", periods=3, freq="1M").strftime("%b"),
         "SU": pd.date_range(start="05/01/2018", periods=3, freq="1M").strftime("%b"),
         "FE": pd.date_range(start="07/01/2018", periods=4, freq="1M").strftime("%b"),
-        "WI": pd.date_range(start="11/01/2018", periods=4, freq="1M").strftime("%b"),
+        "WI": pd.date_range(start="11/01/2018", periods=3, freq="1M").strftime("%b"),
     }
 
     # getting the unique years present in the output
@@ -56,7 +56,7 @@ def seasons_available():
     # print("these are the available seasons", seasons_available)
 
     # the available seasons are only sent to the dropdown
-    return seasons_available
+    return seasons_available, latest_file
 
 
 # method to get list of latest files
@@ -86,6 +86,7 @@ def get_latest_file(files):
             date = file.split("_")[0]
             ls_date.append(datetime.strptime(date, "%b-%Y"))
     ls_date.sort(reverse=True)
+
     ls_sorted = []
     for date in ls_date:
         str_date = date.strftime("%b-%Y")
@@ -94,6 +95,7 @@ def get_latest_file(files):
                 ls_sorted.append(file)
                 break
         break
+    # getting the date prior to the given date
     return ls_sorted[-1]
 
 
@@ -141,3 +143,11 @@ def season_mapping(df, season_yr):
     else:
         print("forecast not generated for the given period")
     return filtered_dataframe
+
+
+def get_last_month(latest_file_name):
+
+    file_month = latest_file_name.split("_")[0]
+    current_month = datetime.strptime(file_month, "%b-%Y")
+    last_month = current_month.replace(day=1) - timedelta(1)
+    return last_month.strftime("%B %Y")
