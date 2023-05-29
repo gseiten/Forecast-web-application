@@ -80,7 +80,7 @@ async def download_xlsx(request: Request, season: str):
 @app.post("/fetch_data")
 async def fetch_data(request: Request):
 
-    seasons = seasons_available()
+    seasons, _ = seasons_available()
 
     form_data = await request.form()
     selected_season = form_data["selected_season"]
@@ -126,6 +126,7 @@ async def redirect_home():
     return RedirectResponse("/", status_code=303)
 
 
-# if __name__ == "__main__":
-#     # import uvicorn
-#     # uvicorn.run(app, host="0.0.0.0", port=9003)
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=9003)

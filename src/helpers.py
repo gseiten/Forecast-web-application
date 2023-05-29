@@ -108,7 +108,7 @@ def season_mapping(df, season_yr):
         "SP": pd.date_range(start="02/01/2018", periods=3, freq="1M").strftime("%b"),
         "SU": pd.date_range(start="05/01/2018", periods=3, freq="1M").strftime("%b"),
         "FE": pd.date_range(start="07/01/2018", periods=4, freq="1M").strftime("%b"),
-        "WI": pd.date_range(start="11/01/2018", periods=4, freq="1M").strftime("%b"),
+        "WI": pd.date_range(start="11/01/2018", periods=3, freq="1M").strftime("%b"),
     }
 
     # season_yr = 'SP-2024'

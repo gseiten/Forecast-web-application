@@ -147,6 +147,10 @@
                         link.parentNode.removeChild(link);
                     })
 
+                    // unhide buttons
+                    document.getElementById("download-button").disabled = false;
+                    document.getElementById("fetch-button").disabled = false;
+
                 })
                 .catch((err) => console.log("err", err))
 

@@ -58,7 +58,7 @@
                     </div>
 
                     <button id="download-button" class="button is-warning" type="submit"
-                        onclick="downloadFile(); this.disabled=true;">
+                        onclick="downloadFile();this.disabled=true; ">
                         Export Forecast as .xlsx
                     </button>
 
@@ -133,6 +133,9 @@
                         document.body.appendChild(link);
                         link.click();
                         link.parentNode.removeChild(link);
+
+                        // Enable the "Export Forecast as .xlsx" button after download
+                        document.getElementById("download-button").disabled = false;
                     })
 
                 })
