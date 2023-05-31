@@ -41,6 +41,8 @@ def seasons_available():
         if len(col.split("-")) == 2:
             unique_yrs.append(col.split("-")[1])
     unique_yrs = list(set(unique_yrs))
+    unique_yrs = list(map(int, unique_yrs))
+    unique_yrs.sort()
 
     # getting the list of seasons
     seasons = season_month_mapping.keys()
@@ -48,10 +50,23 @@ def seasons_available():
     seasons_available = []
     for yr in unique_yrs:
         for season in seasons:
-            if set([s + "-" + yr for s in season_month_mapping[season]]).issubset(
-                set(colnames)
-            ):
-                seasons_available.append(season + "-" + yr)
+            if season != "WI":
+                if set(
+                    [s + "-" + str(yr) for s in season_month_mapping[season]]
+                ).issubset(set(colnames)):
+                    seasons_available.append(season + "-" + str(yr))
+            else:
+                if set(
+                    [
+                        season_month_mapping[season][s_ind] + "-" + str(yr)
+                        if s_ind != (len(season_month_mapping[season]) - 1)
+                        else season_month_mapping[season][s_ind]
+                        + "-"
+                        + str(int(yr) + 1)
+                        for s_ind in range(len(season_month_mapping[season]))
+                    ]
+                ).issubset(set(colnames)):
+                    seasons_available.append(season + "-" + str(yr))
 
     # print("these are the available seasons", seasons_available)
 
@@ -117,8 +132,11 @@ def season_mapping(df, season_yr):
     season_mon = season_month_mapping[season]
 
     ls_mon = []
-    for mon in season_mon:
-        month_yr = mon + "-" + yr
+    for mon in range(len(season_mon)):
+        if mon == (len(season_mon) - 1) and season == "WI":
+            month_yr = season_mon[mon] + "-" + str(int(yr) + 1)
+        else:
+            month_yr = season_mon[mon] + "-" + yr
         r = re.compile(month_yr)
         mon_ls = list(filter(r.match, colnames))
         if len(mon_ls) != 0:
