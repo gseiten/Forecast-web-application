@@ -26,13 +26,14 @@ from helpers import (
 )
 
 from loguru import logger
+from config import output_path
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
 
 # Folder path to fetch files from
-FILES_FOLDER = "D:/products/FORECAST_FINAL_PROJECT/P2P_ADJUSTED_OPS/ALL/FINAL_OPS"
+FILES_FOLDER = output_path
 
 
 @app.get("/")
