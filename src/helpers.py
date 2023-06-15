@@ -6,9 +6,9 @@ import pandas as pd
 import re
 from datetime import datetime, date, timedelta
 import os
+from config import output_path
 
-
-FILES_FOLDER = "D:/products/FORECAST_FINAL_PROJECT/P2P_ADJUSTED_OPS/ALL/FINAL_OPS"
+FILES_FOLDER = output_path
 
 
 # send only the seasons with avaiable forecasts to the dropdown
