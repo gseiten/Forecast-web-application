@@ -6,26 +6,35 @@ import pandas as pd
 import re
 from datetime import datetime, date, timedelta
 import os
-from config import output_path
+from config import north_output_path, south_output_path
 
-FILES_FOLDER = output_path
-
+NORTH_FILES_FOLDER = north_output_path
+SOUTH_FILES_FOLDER = south_output_path
 
 # send only the seasons with avaiable forecasts to the dropdown
 def seasons_available():
 
     # getting the latest file
-    files = get_files_in_directory(FILES_FOLDER)
-    latest_file = get_latest_file(files)
+    north_files = get_files_in_directory(NORTH_FILES_FOLDER)
+    south_files = get_files_in_directory(SOUTH_FILES_FOLDER)
+    north_latest_file = get_latest_file(north_files)
+    south_latest_file = get_latest_file(south_files)
     # print("these are the files ", files)
 
     # print("this is the latest file ", latest_file)
 
     # reading the content of the files using pandas
-    df = pd.read_excel(os.path.join(FILES_FOLDER, latest_file), nrows=1)
+    df_north = pd.read_excel(
+        os.path.join(NORTH_FILES_FOLDER, north_latest_file), nrows=1
+    )
+    df_south = pd.read_excel(
+        os.path.join(SOUTH_FILES_FOLDER, south_latest_file), nrows=1
+    )
 
+    df = pd.concat([df_north, df_south], axis=0, ignore_index=True)
     # check availability of season
     colnames = list(df.columns)
+
     # season-month mapping
     season_month_mapping = {
         "SP": pd.date_range(start="02/01/2018", periods=3, freq="1M").strftime("%b"),
@@ -71,10 +80,10 @@ def seasons_available():
     # print("these are the available seasons", seasons_available)
 
     # the available seasons are only sent to the dropdown
-    return seasons_available, latest_file
+    return seasons_available, north_latest_file
 
 
-# method to get list of latest files
+# method to get list of files in the output directory
 def get_files_in_directory(directory):
     """return all the valid output forecast files
 
@@ -92,6 +101,7 @@ def get_files_in_directory(directory):
     return files
 
 
+# function to get the latest file among all the listed files
 def get_latest_file(files):
     """gets the latest files based on dates"""
 
@@ -114,6 +124,7 @@ def get_latest_file(files):
     return ls_sorted[-1]
 
 
+# function to filter out the relevant season-year as per the user's selection from the dropdown
 def season_mapping(df, season_yr):
     """return season wise data"""
 
@@ -163,6 +174,7 @@ def season_mapping(df, season_yr):
     return filtered_dataframe
 
 
+# getting the last-month considered as input for forecasting
 def get_last_month(latest_file_name):
 
     file_month = latest_file_name.split("_")[0]

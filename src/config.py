@@ -1,1 +1,4 @@
-output_path = "D:/products/FORECAST_FINAL_PROJECT/P2P_ADJUSTED_OPS/ALL/FINAL_OPS"
+north_output_path = "D:/products/FORECAST_FINAL_PROJECT/P2P_ADJUSTED_OPS/ALL/FINAL_OPS"
+south_output_path = (
+    "D:/products/FORECAST_FINAL_PROJECT - SOUTH/P2P_ADJUSTED_OPS/ALL/FINAL_OPS"
+)

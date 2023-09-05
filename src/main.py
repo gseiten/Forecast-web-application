@@ -26,14 +26,15 @@ from helpers import (
 )
 
 from loguru import logger
-from config import output_path
+from config import north_output_path, south_output_path
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
 
 # Folder path to fetch files from
-FILES_FOLDER = output_path
+NORTH_FILES_FOLDER = north_output_path
+SOUTH_FILES_FOLDER = south_output_path
 
 
 @app.get("/")
@@ -50,14 +51,20 @@ async def home(request: Request):
 async def download_xlsx(request: Request, season: str):
 
     # getting the latest file
-    files = get_files_in_directory(FILES_FOLDER)
-    latest_file = get_latest_file(files)
+    north_files = get_files_in_directory(NORTH_FILES_FOLDER)
+    south_files = get_files_in_directory(SOUTH_FILES_FOLDER)
+    north_latest_file = get_latest_file(north_files)
+    south_latest_file = get_latest_file(south_files)
 
     # reading the content of the files using pandas
-    file_df = pd.read_excel(os.path.join(FILES_FOLDER, latest_file))
+    north_file_df = pd.read_excel(os.path.join(NORTH_FILES_FOLDER, north_latest_file))
+    south_file_df = pd.read_excel(os.path.join(SOUTH_FILES_FOLDER, south_latest_file))
 
+    file_df = pd.concat([north_file_df, south_file_df], axis=0, ignore_index=True)
     # data with filtered out season
     season_df = season_mapping(file_df, season)
+
+    print(season_df.head())
 
     # creating a BytesIO buffer
     file_df_bytes = io.BytesIO()
@@ -95,13 +102,17 @@ async def fetch_data(request: Request):
     # )
 
     # getting the latest file
-    files = get_files_in_directory(FILES_FOLDER)
-    latest_file = get_latest_file(files)
-
+    north_files = get_files_in_directory(NORTH_FILES_FOLDER)
+    north_latest_file = get_latest_file(north_files)
+    south_files = get_files_in_directory(SOUTH_FILES_FOLDER)
+    south_latest_file = get_latest_file(south_files)
+    df_north = pd.read_excel(os.path.join(NORTH_FILES_FOLDER, north_latest_file))
+    df_south = os.path.join(SOUTH_FILES_FOLDER, south_latest_file)
     # reading the content of the files using pandas
-    file_df = pd.read_excel(os.path.join(FILES_FOLDER, latest_file))
-
+    north_file_df = pd.read_excel(os.path.join(NORTH_FILES_FOLDER, north_latest_file))
+    south_file_df = pd.read_excel(os.path.join(SOUTH_FILES_FOLDER, south_latest_file))
     # data with filtered out season
+    file_df = pd.concat([north_file_df, south_file_df], axis=0, ignore_index=True)
     season_df = season_mapping(file_df, selected_season)
     data_list = season_df.to_dict(orient="records")
     data_list = data_list[0:5000]
